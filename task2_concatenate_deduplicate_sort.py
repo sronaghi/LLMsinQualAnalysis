@@ -40,8 +40,8 @@ class MinimalStanfordSecureGPT:
         backoff_factor = 2
         initial_wait = 1
 
-        print(f"\n🚀 Starting invoke() call")
-        print(f"📝 Prompt length: {len(prompt)} characters")
+        print(f"\nStarting invoke() call")
+        print(f"Prompt length: {len(prompt)} characters")
         print("num retries: ", retries)
         while retries < max_retries:
             # Approximate total tokens: prompt + potential response
@@ -55,7 +55,7 @@ class MinimalStanfordSecureGPT:
             if tokens_used_chat + tokens_needed > RATE_LIMIT_TOKENS_PER_MINUTE_CHAT:
                 wait_time = 60 - elapsed_time
                 if wait_time > 0:
-                    print(f"⏳ Chat rate limit reached. Must wait {wait_time:.2f} seconds...")
+                    print(f" Chat rate limit reached. Must wait {wait_time:.2f} seconds...")
                     time.sleep(wait_time)
 
                 tokens_used_chat = 0
@@ -73,8 +73,8 @@ class MinimalStanfordSecureGPT:
                 "max_tokens": self.max_tokens,
             }
 
-            print(f"🔑 Using API key: {SUBSCRIPTION_KEY_CHAT[:8]}...")
-            print(f"🌐 Sending request to: {API_ENDPOINT_CHAT}")
+            print(f"Using API key: {SUBSCRIPTION_KEY_CHAT[:8]}...")
+            print(f"Sending request to: {API_ENDPOINT_CHAT}")
             
             try:
                 print("📤 Sending API request...")
@@ -82,11 +82,11 @@ class MinimalStanfordSecureGPT:
                     API_ENDPOINT_CHAT, headers=headers, json=payload, timeout=60
                 )
                 
-                print(f"📥 Response status code: {response.status_code}")
-                print(f"📥 Response headers: {dict(response.headers)}")
+                print(f"Response status code: {response.status_code}")
+                print(f"Response headers: {dict(response.headers)}")
                 
                 if response.status_code != 200:
-                    print(f"❌ Error response body: {response.text}")
+                    print(f"Error response body: {response.text}")
 
                 if response.status_code == 429:  # Too Many Requests
                     retry_after = int(response.headers.get("Retry-After", 0))
@@ -95,7 +95,7 @@ class MinimalStanfordSecureGPT:
                         if retry_after > 0
                         else initial_wait * (backoff_factor ** retries)
                     )
-                    print(f"⏳ 429 Too Many Requests. Sleeping {wait_time}s...")
+                    print(f"429 Too Many Requests. Sleeping {wait_time}s...")
                     time.sleep(wait_time)
                     retries += 1
                     continue
@@ -150,8 +150,8 @@ def sort_quotes(quotes: List[str], llm: MinimalStanfordSecureGPT, topic: str) ->
     """
     Combine the deduplication and sorting steps into one final output.
     """
-    print(f"\n🔄 Starting sort_quotes for topic: {topic}")
-    print(f"📊 Number of quotes to sort: {len(quotes)}")
+    print(f"\nStarting sort_quotes for topic: {topic}")
+    print(f"Number of quotes to sort: {len(quotes)}")
     
     bullet_points = "".join(f"- {q}\n" for q in quotes)
     print(f"📝 Total length of bullet points: {len(bullet_points)} characters")
@@ -167,10 +167,10 @@ def sort_quotes(quotes: List[str], llm: MinimalStanfordSecureGPT, topic: str) ->
         "Sorted List:\n"
     )
     print("sort_prompt: ", sort_prompt)
-    print(f"🤖 Calling LLM with prompt length: {len(sort_prompt)} characters")
+    print(f"Calling LLM with prompt length: {len(sort_prompt)} characters")
     try:
         result = llm.invoke(sort_prompt)
-        print("✅ LLM call successful")
+        print("LLM call successful")
         return result
     except Exception as e:
         print(f"❌ Error in LLM call: {str(e)}")
@@ -319,19 +319,19 @@ def chunk_bullets(bullet_points: List[str], max_chars: int = MAX_CHARS_PER_CHUNK
 
 def process_dedup_and_sort(deduped_answers: List[str], llm, topic: str) -> str:
     total_char_count = sum(len(b) for b in deduped_answers)
-    print(f"\n📊 Processing dedup and sort for topic: {topic}")
-    print(f"📝 Total characters: {total_char_count}")
+    print(f"\nProcessing dedup and sort for topic: {topic}")
+    print(f"Total characters: {total_char_count}")
 
     if total_char_count > MAX_CHARS_PER_CHUNK:
-        print(f"⚠️ Content exceeds {MAX_CHARS_PER_CHUNK} chars, splitting into chunks")
+        print(f"Content exceeds {MAX_CHARS_PER_CHUNK} chars, splitting into chunks")
         bullet_chunks = chunk_bullets(deduped_answers, max_chars=MAX_CHARS_PER_CHUNK)
-        print(f"📦 Split into {len(bullet_chunks)} chunks")
+        print(f"Split into {len(bullet_chunks)} chunks")
 
         sorted_chunks = []
         for i, chunk in enumerate(bullet_chunks):
            
-            print(f"\n🔄 Processing chunk {i+1}/{len(bullet_chunks)}")
-            print(f"📝 Chunk size: {sum(len(b) for b in chunk)} characters")
+            print(f"\nProcessing chunk {i+1}/{len(bullet_chunks)}")
+            print(f"Chunk size: {sum(len(b) for b in chunk)} characters")
             try:
                 sorted_chunk_text = sort_quotes(chunk, llm, topic)
                 sorted_chunks.append(sorted_chunk_text)
@@ -341,11 +341,11 @@ def process_dedup_and_sort(deduped_answers: List[str], llm, topic: str) -> str:
                 raise
 
         final_result = "\n\n".join(sorted_chunks)
-        print("✅ All chunks processed and combined")
+        print("All chunks processed and combined")
     else:
-        print("📝 Content within limits, processing as single chunk")
+        print("Content within limits, processing as single chunk")
         final_result = sort_quotes(deduped_answers, llm, topic)
-        print("✅ Processing complete")
+        print("Processing complete")
 
     return final_result
 
