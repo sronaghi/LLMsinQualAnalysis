@@ -10,7 +10,6 @@ import json
 # ==================================================
 RATE_LIMIT_TOKENS_PER_MINUTE_CHAT = 250000
 
-#API_ENDPOINT_CHAT = "https://apim.stanfordhealthcare.org/openai3/deployments/gpt-4o/chat/completions?api-version=2023-05-15"
 API_ENDPOINT_CHAT = "https://apim.stanfordhealthcare.org/openai-eastus2/deployments/o1/chat/completions?api-version=2024-12-01-preview"
 
 SUBSCRIPTION_KEY_CHAT = ""
@@ -55,11 +54,6 @@ class MinimalStanfordSecureGPT:
                 "Ocp-Apim-Subscription-Key": SUBSCRIPTION_KEY_CHAT,
                 "Content-Type": "application/json",
             }
-            # payload = {
-            #     "messages": [{"role": "user", "content": prompt}],
-            #     "temperature": self.temperature,
-            #     "max_tokens": self.max_tokens,
-            # }
             payload = json.dumps({
                 "model": "o1",
                 "messages": [
@@ -124,27 +118,6 @@ class MinimalStanfordSecureGPT:
         raise Exception(f"Failed to get response after {max_retries} retries")
 
 
-EXAMPLE_COMPARISONS = '''Here are some examples of the human-generated comparisons for different variables:
-
-GEOGRAPHY:
-• Evenly divded between urban and rural settings
-• Serving areas populated by multiple races and ethnicities, especially Hispanic, but also Black/African American, Asian, Caribbean, and by migrant/seasonal workers; often underserved, Medicaid, with high social needs burden
-• Areas range from highly competitive, with multiple FQHCs in the area, to lacking needed specialty services
-• Several FQHCs collaborate with community-based organizations and local government entities
-
-PATIENTS:
-• Widely diverse demographics in terms of race and ethnicity across clinics and often within individual clinics' patient populations (one noted its patients spoke 50 languages)
-• Diabetes was almost invariably among the most common health conditions of FQHC patients; other chronic illnesses, including hypertension and asthma, as well as substance use and behavioral health conditions
-• Predominantly low income or very low income, often resulting in substantial social needs including, most frequently transportation, but also housing, employment, food insecturity; one clinic specialized in care of homeless people
-• Some patients in some FQHCs lacked reliable internet, due to access issues or patient preference
-• One clinic reported lack of trust as a barrier to care for some patients
-
-SUPPORT FOR PATIENT GOALS, NEEDS, AND PREFERENCES:
-• FQHCs identify patient needs, goals, and prefrences for diabetes management through structured assessments and provider-patient interactions; not all clinics have formal systems, relying instead on strong patient-provider relationships
-• Social workers, health educators, nutritionists, community health workers frequently use motivational interviewing and trauma-informed approaches to encourage pursuit of self-identified goals for self-care; these visits often combine social/behavioral health needs with diabetes care
-• FQHCs often strive to offer culturally and linguistically competent care, including by hiring aligned clinicians and staff
-• FQHCs deploy multiple creative strategies to enable patients to address social needs, e.g., offering longer appointments to build trust with providers, facilitating prior authorizations, co-locating specialist and screening services, physical spaces for conducting telehealth visits'''
-
 def process_spreadsheet(input_xlsx: str, output_xlsx: str):
     """
     1) Load an Excel workbook where:
@@ -182,9 +155,6 @@ def process_spreadsheet(input_xlsx: str, output_xlsx: str):
     
     # Loop through each row, skipping the header row
     for row_idx in range(2, 26):
-        # Only process specific rows
-        # if row_idx not in [6, 10, 15, 18, 23]:
-        #     continue
             
         variable = ws.cell(row=row_idx, column=1).value
         if "technology for clinical care" not in variable.lower():
